@@ -1,0 +1,10 @@
+# Ignore all .dta files
+*.dta
+
+# Ignore all .csv files
+*.csv
+
+# Other common ignores
+node_modules/
+.DS_Store
+*.log
