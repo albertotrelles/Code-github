@@ -54,7 +54,7 @@ global assets "var9_1 missing_var9_1 var9_2 missing_var9_2 var9_3 missing_var9_3
 
 global siagie3 "gpa_3yrlead miss_gpa_3yrlead math_num_3yrlead miss_math_num_3yrlead lang_num_3yrlead miss_lang_num_3yrlead"
 
-use "$data/va_data.dta", clear
+
 
 /*
 Heterogeneity by:
@@ -69,30 +69,13 @@ cl2p_va_1_`y'
 ise_va_1_`y'
 */
 
-*Terciles 
-xtile nq3_math_2p = mate_2p_std, nq(3)
-xtile nq3_cl_2p = cl_2p_std, nq(3)
-xtile nq3_ise = ise, nq(3)
-
-
-foreach y of global outcomes{
-	display as red "`y' model general"
-	reghdfe `y' $test_scores $ise $test_scores_primary $individual $father_education $mother_education $house $assets $siagie3, absorb(va_1_`y'=schoolid coar_fe year) vce(robust) resid
-	
-	display as red "`y' model 2015"
-	reghdfe `y' $test_scores $ise $test_scores_primary $individual $father_education $mother_education $house $assets $siagie3 if year==2015, absorb(va_15_`y'=schoolid coar_fe year) vce(robust) resid
-
-	display as red "`y' model 2016"
-	reghdfe `y' $test_scores $ise $test_scores_primary $individual $father_education $mother_education $house $assets $siagie3 if year==2016, absorb(va_16_`y'=schoolid coar_fe year) vce(robust) resid
-	
-}
-
-reghdfe matricula $test_scores $ise $test_scores_primary $individual $father_education $mother_education $house $assets $siagie3, absorb(va_1_matricula=schoolid coar_fe year) vce(robust) resid
-
-
 *------------------------*
 *--- Het by Gender ------*
 *------------------------*
+use "$data/va_data.dta", clear
+xtile nq3_math_2p = mate_2p_std, nq(3)
+xtile nq3_cl_2p = cl_2p_std, nq(3)
+xtile nq3_ise = ise, nq(3)
 
 foreach y of global outcomes{
 	display as red "`y' model general"
@@ -114,6 +97,10 @@ save "$temporal/gender_value_added_schools.dta", replace
 *-------------------------*
 *--- Het by Math 2p ------*
 *-------------------------*
+use "$data/va_data.dta", clear
+xtile nq3_math_2p = mate_2p_std, nq(3)
+xtile nq3_cl_2p = cl_2p_std, nq(3)
+xtile nq3_ise = ise, nq(3)
 
 foreach y of global outcomes{
 	display as red "`y' model general"
@@ -136,6 +123,10 @@ save "$temporal/math_value_added_schools.dta", replace
 *----------------------------*
 *--- Het by Reading 2p ------*
 *----------------------------*
+use "$data/va_data.dta", clear
+xtile nq3_math_2p = mate_2p_std, nq(3)
+xtile nq3_cl_2p = cl_2p_std, nq(3)
+xtile nq3_ise = ise, nq(3)
 
 foreach y of global outcomes{
 	display as red "`y' model general"
@@ -148,9 +139,9 @@ cap drop students
 gen students=1
 save "$temporal/reading_value_added_students.dta", replace
 
-use "$temporal/reading_added_students.dta", clear
-keep schoolid m2p?_va_1_* students
-collapse (sum) students (mean) m2p?_va_1_*, by(schoolid)
+use "$temporal/reading_value_added_students.dta", clear
+keep schoolid cl2p?_va_1_* students
+collapse (sum) students (mean) cl2p?_va_1_*, by(schoolid)
 
 save "$temporal/reading_value_added_schools.dta", replace
 
@@ -158,6 +149,10 @@ save "$temporal/reading_value_added_schools.dta", replace
 *--------------------------------------*
 *--- Het by Socio-economic index ------*
 *--------------------------------------*
+use "$data/va_data.dta", clear
+xtile nq3_math_2p = mate_2p_std, nq(3)
+xtile nq3_cl_2p = cl_2p_std, nq(3)
+xtile nq3_ise = ise, nq(3)
 
 foreach y of global outcomes{
 	display as red "`y' model general"
