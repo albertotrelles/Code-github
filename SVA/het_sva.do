@@ -187,7 +187,8 @@ drop _merge
 save "$output/het_value_added_schools.dta", replace
 
 
-*Gender heterogeneity
+*--- (1) Gender heterogeneity ---*
+*--------------------------------*
 use "$output/het_value_added_schools", clear
 est clear
 
@@ -221,12 +222,174 @@ graph export "$graphs/gender/het_gender_`y'.png", replace width(1280) height(720
 }
 
 
-*Math and reading heterogeneity
+*--- (2) Math and reading heterogeneity---*
+*-----------------------------------------*
+clear all
+use "$output/het_value_added_schools", clear
+est clear
+
+*local y matricula
+
+foreach y of global outcomes{
+*I.
+*MATH: 3rd vs. 1st           
+reg m2p3_va_1_`y' m2p1_va_1_`y' 
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom m2p1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter m2p3_va_1_`y' m2p1_va_1_`y' [aw=students], 
+		title("Top vs. bottom third") msize(tiny) legend(off) 
+		xtitle("Math (2p) 1st tercile") ytitle("Math (2p) 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.5 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit m2p3_va_1_`y' m2p1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit m2p3_va_1_`y' m2p3_va_1_`y', lcolor(black) lpattern(dash) name(m2p3v1_`y'))
+	;
+#delimit cr
+
+*READING: 3rd vs. 1st           
+reg cl2p3_va_1_`y' cl2p1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom cl2p1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter cl2p3_va_1_`y' cl2p1_va_1_`y' [aw=students], 
+		title("Top vs. bottom third") msize(tiny) legend(off) 
+		xtitle("Reading (2p) 1st tercile") ytitle("Reading (2p) 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.5 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit cl2p3_va_1_`y' cl2p1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit cl2p3_va_1_`y' cl2p3_va_1_`y', lcolor(black) lpattern(dash) name(cl2p3v1_`y'))
+	;
+#delimit cr
+
+*II.
+*MATH: 3rd vs. 2nd           
+reg m2p3_va_1_`y' m2p2_va_1_`y' 
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom m2p2_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter m2p3_va_1_`y' m2p2_va_1_`y' [aw=students], 
+		title("Top vs. middle third") msize(tiny) legend(off) 
+		xtitle("Math (2p) 2nd tercile") ytitle("Math (2p) 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.5 -0.70 "Ho: b=1 (${ptest})")  
+	)
+	(	lfit m2p3_va_1_`y' m2p2_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit m2p3_va_1_`y' m2p3_va_1_`y', lcolor(black) lpattern(dash) name(m2p3v2_`y'))
+	;
+#delimit cr
+
+*READING: 3rd vs. 2nd           
+reg cl2p3_va_1_`y' cl2p2_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom cl2p2_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter cl2p3_va_1_`y' cl2p2_va_1_`y' [aw=students], 
+		title("Top vs. middle third") msize(tiny) legend(off) 
+		xtitle("Reading (2p) 2nd tercile") ytitle("Reading (2p) 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.5 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit cl2p3_va_1_`y' cl2p2_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit cl2p3_va_1_`y' cl2p3_va_1_`y', lcolor(black) lpattern(dash) name(cl2p3v2_`y'))
+	;
+#delimit cr
+
+*III.
+*MATH: 2nd vs. 1st           
+reg m2p2_va_1_`y' m2p1_va_1_`y' 
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom m2p1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter m2p2_va_1_`y' m2p1_va_1_`y' [aw=students], 
+		title("Middle vs. bottom third") msize(tiny) legend(off) 
+		xtitle("Math (2p) 1st tercile") ytitle("Math (2p) 2nd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.5 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit m2p2_va_1_`y' m2p1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit m2p2_va_1_`y' m2p2_va_1_`y', lcolor(black) lpattern(dash) name(m2p2v1_`y'))
+	;
+#delimit cr
+
+*READING: 2nd vs. 1st           
+reg cl2p2_va_1_`y' cl2p1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom cl2p1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter cl2p2_va_1_`y' cl2p1_va_1_`y' [aw=students], 
+		title("Middle vs. bottom third") msize(tiny) legend(off) 
+		xtitle("Reading (2p) 1st tercile") ytitle("Reading (2p) 2nd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.5 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit cl2p2_va_1_`y' cl2p1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit cl2p2_va_1_`y' cl2p2_va_1_`y', lcolor(black) lpattern(dash) name(cl2p2v1_`y'))
+	;
+#delimit cr
+
+graph combine m2p3v1_`y' m2p3v2_`y' m2p2v1_`y' cl2p3v1_`y' cl2p3v2_`y'  cl2p2v1_`y', rows(2) cols(3) title("SVA `y'")
+graph export "$graphs/scores/het_scores_`y'.png", replace width(2000) height(1400)
+
+}
 
 
 
 
-*ISE heterogeneity
+
+
+
+graph combine ise3v1_`y' ise3v2_`y' ise2v1_`y', rows(1) cols(3) title("SVA `y'") 
 
 
 
@@ -239,6 +402,280 @@ graph export "$graphs/gender/het_gender_`y'.png", replace width(1280) height(720
 
 
 
+
+
+
+*--- (3) ISE heterogeneity ---*
+*-----------------------------*
+use "$output/het_value_added_schools", clear
+est clear
+
+foreach y of global outcomes{
+
+*3rd vs. 1st
+reg ise3_va_1_`y' ise1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise3_va_1_`y' ise1_va_1_`y' [aw=students], 
+		title("Top vs. bottom third") msize(tiny) legend(off) 
+		xtitle("ISE 1st tercile") ytitle("ISE 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.8 "${coef} (${se})", color(red)) 
+		text(0.85 -0.8 "[${lb}, ${ub}]", color(blue))                       
+		text(0.7 -0.8 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise3_va_1_`y' ise1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise3_va_1_`y' ise3_va_1_`y', lcolor(black) lpattern(dash) name(ise3v1_`y'))
+	;
+#delimit cr
+
+*3rd vs. 2nd 
+reg ise3_va_1_`y' ise2_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise2_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise3_va_1_`y' ise2_va_1_`y' [aw=students], 
+		title("Top vs. middle third") msize(tiny) legend(off) 
+		xtitle("ISE 2nd tercile") ytitle("ISE 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)   
+		text(1 -0.8 "${coef} (${se})", color(red)) 
+		text(0.85 -0.8 "[${lb}, ${ub}]", color(blue))                       
+		text(0.7 -0.8 "Ho: b=1 (${ptest})")
+	)
+	(	lfit ise3_va_1_`y' ise2_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise3_va_1_`y' ise3_va_1_`y', lcolor(black) lpattern(dash) name(ise3v2_`y'))
+	;
+#delimit cr
+
+*2nd vs. 1st 
+reg ise2_va_1_`y' ise1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise2_va_1_`y' ise1_va_1_`y' [aw=students], 
+		title("Middle vs. bottom third") msize(tiny) legend(off) 
+		xtitle("ISE 1st tercile") ytitle("ISE 2nd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.8 "${coef} (${se})", color(red)) 
+		text(0.85 -0.8 "[${lb}, ${ub}]", color(blue))                       
+		text(0.7 -0.8 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise2_va_1_`y' ise1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise2_va_1_`y' ise2_va_1_`y', lcolor(black) lpattern(dash) name(ise2v1_`y'))
+	;
+#delimit cr
+
+graph combine ise3v1_`y' ise3v2_`y' ise2v1_`y', rows(1) cols(3) title("SVA `y'") 
+graph export "$graphs/ise/ise_het_`y'.png", replace width(2400) height(800)
+	
+}
+
+
+
+*cambiar titulos por top/middle/bottom vs. etc. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+graph drop test1 test2 test3
+
+*3rd vs. 1st
+local y matricula
+reg ise3_va_1_`y' ise1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise3_va_1_`y' ise1_va_1_`y' [aw=students], 
+		title("SVA `y'") msize(tiny) legend(off) 
+		xtitle("Female SVA") ytitle("Male SVA") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.50 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise3_va_1_`y' ise1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise3_va_1_`y' ise3_va_1_`y', lcolor(black) lpattern(dash) name(test1))
+	;
+#delimit cr
+
+*3rd vs. 2nd 
+local y matricula
+reg ise3_va_1_`y' ise2_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise2_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise3_va_1_`y' ise2_va_1_`y' [aw=students], 
+		title("SVA `y'") msize(tiny) legend(off) 
+		xtitle("Female SVA") ytitle("Male SVA") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.50 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise3_va_1_`y' ise2_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise3_va_1_`y' ise3_va_1_`y', lcolor(black) lpattern(dash) name(test2))
+	;
+#delimit cr
+
+*2nd vs. 1st 
+local y matricula
+reg ise2_va_1_`y' ise1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise2_va_1_`y' ise1_va_1_`y' [aw=students], 
+		title("SVA `y'") msize(tiny) legend(off) 
+		xtitle("Female SVA") ytitle("Male SVA") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.50 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise2_va_1_`y' ise1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise2_va_1_`y' ise2_va_1_`y', lcolor(black) lpattern(dash) name(test3))
+	;
+#delimit cr
+
+
+graph combine test1 test2 test3, title("Main title") 
+graph export "$graphs/test.png", replace width(2560) height(2000)
+
+
+*combinar 6 es reading + math  // tener a un costado math y al otro reading 
+
+
+
+
+
+
+
+
+foreach y of global outcomes{
+
+*3rd vs. 1st
+reg ise3_va_1_`y' ise1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise3_va_1_`y' ise1_va_1_`y' [aw=students], 
+		title("3rd vs. 1st") msize(tiny) legend(off) 
+		xtitle("ISE 1rd tercile") ytitle("ISE 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.50 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise3_va_1_`y' ise1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise3_va_1_`y' ise3_va_1_`y', lcolor(black) lpattern(dash) name(ise3v1_`y'))
+	;
+#delimit cr
+
+*3rd vs. 2nd 
+reg ise3_va_1_`y' ise2_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise2_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise3_va_1_`y' ise2_va_1_`y' [aw=students], 
+		title("3rd vs. 2st") msize(tiny) legend(off) 
+		xtitle("ISE 2rd tercile") ytitle("ISE 3rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)   
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.50 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise3_va_1_`y' ise2_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise3_va_1_`y' ise3_va_1_`y', lcolor(black) lpattern(dash) name(ise3v2_`y'))
+	;
+#delimit cr
+
+*2nd vs. 1st 
+reg ise2_va_1_`y' ise1_va_1_`y' [aw=students]
+global coef = string(round(r(table)[1,1], .001))
+global se = string(round(r(table)[2,1], .001))
+global lb = string(round(r(table)[5,1], .001))
+global ub = string(round(r(table)[6,1], .001))
+lincom ise1_va_1_`y' - 1
+global ptest = string(round(r(p), 0.001))
+
+#delimit ;
+graph twoway
+	( 
+		scatter ise2_va_1_`y' ise1_va_1_`y' [aw=students], 
+		title("2rd vs. 1st") msize(tiny) legend(off) 
+		xtitle("ISE 2rd tercile") ytitle("ISE 1rd tercile") xlabel(-1(.25)1) ylabel(-1(.25)1)  
+		text(1 -0.70 "${coef} (${se})", color(red)) 
+		text(0.75 -0.70 "[${lb}, ${ub}]", color(blue))                       
+		text(0.50 -0.70 "Ho: b=1 (${ptest})") 
+	)
+	(	lfit ise2_va_1_`y' ise1_va_1_`y' [aw=students], lcolor(red)		)
+	(	lfit ise2_va_1_`y' ise2_va_1_`y', lcolor(black) lpattern(dash) name(ise2v1_`y'))
+	;
+#delimit cr
+
+graph combine ise3v1_`y' ise3v2_`y' ise2v1_`y', rows(1) cols(3) title("SVA `y'") 
+graph export "$graphs/ise/ise_het_`y'.png", replace width(3840) height(1000)
+	
+}
 
 
 /*
