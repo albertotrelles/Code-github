@@ -1,0 +1,357 @@
+global dir "C:\Users\ALBERTO TRELLES\Documents\Alberto\RA\Code-github\NdM"
+global data "$dir/Data"
+global input "$data/Input"
+global organized "$data/Organized"
+global temporal "$data/Temporal"
+
+cd "$dir"
+
+/*
+R2 - r2-yc_childlevel; r2-oc_quest
+R3 - r3-yc_childlevel; r3-oc_childlevel
+R4 - r4-yc_cog; r4-oc_cog
+R5 - r5-yc_cog
+*/
+
+
+// -------------------------------------------------------------------------- //
+// ROUND 2 - 2007															  //
+// -------------------------------------------------------------------------- //
+
+*---Younger Cohort---*
+*--------------------*
+use "$input/r2-yc_childlevel", clear
+gen period=2
+gen cohort="younger"
+
+*Date of Interview
+gen day = substr(string(dtopi, "%tdD_m_Y"), 1, 2)
+gen month = substr(string(dtopi, "%tdD_m_Y"), 4, 3)
+gen year = substr(string(dtopi, "%tdD_m_Y"), 8, .)
+replace year = "07" if year==""
+global dates day month year
+
+*Child ID
+gen personid = real(substr(childid, 3, .))
+
+*Place ID
+gen locationid = real(substr(placeid, 3, 2) + substr(placeid, 6, 2))
+
+*Test variables
+ren (score_ppvt score_cog) (ppvt cog)
+global scores ppvt cog
+
+foreach y of global scores{
+	egen `y'_std = std(`y')
+}
+global scores_std ppvt_std cog_std
+
+keep personid locationid period cohort $scores $scores_std $dates 
+order personid locationid period cohort $scores $scores_std $dates 
+sort personid locationid
+
+save "$temporal/r2-yc_test.dta", replace
+
+*---Older Cohort---*
+*------------------*
+use "$input/r2-oc_quest", clear
+gen period=2
+gen cohort="older"
+
+*Child ID
+gen personid = real(substr(childid, 3, .))
+merge 1:1 childid using "$input/r2-oc_childlevel" //merge to get date and placeid
+drop if _merge!=3 //29 not merged from using (didn't take the test)
+drop _merge
+
+*Date of Interview
+gen day = substr(string(dtopi, "%tdD_m_Y"), 1, 2)
+gen month = substr(string(dtopi, "%tdD_m_Y"), 4, 3)
+gen year = substr(string(dtopi, "%tdD_m_Y"), 8, .)
+replace year = "07" if year==""
+global dates day month year
+
+*Place ID
+gen locationid = real(substr(placeid, 3, 2) + substr(placeid, 6, 2))
+
+*Test variables
+ren (score_ppvt score_math) (ppvt math)
+global scores ppvt math
+global scores_std ""
+
+foreach y of global scores{
+	egen `y'_std = std(`y')
+	global scores_std ${scores_std} `y'_std
+}
+
+keep personid locationid period cohort $scores $scores_std $dates 
+order personid locationid period cohort $scores $scores_std $dates 
+sort personid locationid
+
+save "$temporal/r2-oc_test.dta", replace
+
+
+// -------------------------------------------------------------------------- //
+// ROUND 3 - 2009															  //
+// -------------------------------------------------------------------------- //
+
+*---Younger Cohort---*
+*--------------------*
+use "$input/r3-yc_childlevel", clear
+gen period=3
+gen cohort="younger"
+
+*Date of Interview
+gen day = substr(string(cdint, "%tdD_m_Y"), 1, 2)
+gen month = substr(string(cdint, "%tdD_m_Y"), 4, 3)
+gen year = substr(string(cdint, "%tdD_m_Y"), 8, .)
+replace year = "09" if year==""
+
+*Child ID
+gen personid = real(substr(childid, 3, .))
+
+*Place ID
+merge 1:1 childid using "$input/r3-yc_placeid.dta"
+drop if _merge!= 3 //only 109 didn't merge (all from using)
+drop _merge
+gen locationid = real(substr(placeid, 3, 2) + substr(placeid, 6, 2))
+
+*Test variables
+global scores ppvt math egra sppvt
+global scores_std ""
+
+foreach y of global scores{
+	egen `y'_std = std(`y')
+	global scores_std ${scores_std} `y'_std
+}
+
+keep personid locationid period cohort $scores $scores_std $dates 
+order personid locationid period cohort $scores $scores_std $dates 
+sort personid locationid
+
+save "$temporal/r3-yc_test.dta", replace
+
+*---Older Cohort---*
+*------------------*
+use "$input/r3-oc_childlevel", clear
+gen period=3
+gen cohort="older"
+
+*Date of Interview
+gen day = substr(string(cdint, "%tdD_m_Y"), 1, 2)
+gen month = substr(string(cdint, "%tdD_m_Y"), 4, 3)
+gen year = substr(string(cdint, "%tdD_m_Y"), 8, .)
+replace year = "09" if year==""
+
+*Child ID
+gen personid = real(substr(childid, 3, .))
+
+*Place ID
+merge 1:1 childid using "$input/r3-oc_placeid.dta"
+drop if _merge!= 3 //only 36 didn't merge (all from using)
+drop _merge
+gen locationid = real(substr(placeid, 3, 2) + substr(placeid, 6, 2))
+
+*Test variables
+ren (sppvt_co) sppvt //ppvt for sibling is only available for "corrected" (however corrected scores are basically the same as raw scores) (all of them happen to be 0 for some reason)
+global scores ppvt math cloze sppvt
+global scores_std ""
+
+foreach y of global scores{
+	egen `y'_std = std(`y')
+	global scores_std ${scores_std} `y'_std
+}
+
+keep personid locationid period cohort $scores $scores_std $dates 
+order personid locationid period cohort $scores $scores_std $dates 
+sort personid locationid
+
+save "$temporal/r3-oc_test.dta", replace
+
+
+// -------------------------------------------------------------------------- //
+// ROUND 4 - 2013															  //
+// -------------------------------------------------------------------------- //
+
+*---Younger Cohort---*
+*--------------------*
+use "$input/r4-yc_childlevel", clear
+gen period=4
+gen cohort="younger"
+
+*Date of Interview
+gen day = substr(DINT, 1, 2)
+gen month = substr(DINT, 4, 2)
+gen year = substr(DINT, 9, 2)
+
+*Child ID
+ren CHILDCODE personid
+gen childid = "PE0" + string(personid, "%05.0f") if personid<101001
+replace childid = "PE" + string(personid, "%05.0f") if personid>=101001
+
+*Place ID
+ren childid CHILDID
+merge 1:1 CHILDID using "$input/r4-yc_placeid.dta"
+drop if _merge!= 3 //all matched
+drop _merge
+gen locationid = real(PLACEID)
+ren (CHILDID PLACEID) (childid placeid)
+
+*Test variables
+ren personid CHILDCODE
+merge 1:1 CHILDCODE using "$input/r4-yc_cog.dta" //all matched
+drop if _merge!=3
+drop _merge
+ren CHILDCODE personid
+
+ren (ppvt_raw maths_raw lang_raw sppvt_raw) (ppvt math lang sppvt) 
+global scores ppvt math lang sppvt
+global scores_std ""
+
+foreach y of global scores{
+	egen `y'_std = std(`y')
+	global scores_std ${scores_std} `y'_std
+}
+
+keep personid locationid period cohort $scores $scores_std $dates 
+order personid locationid period cohort $scores $scores_std $dates 
+sort personid locationid
+
+save "$temporal/r4-yc_test.dta", replace
+
+*---Older Cohort---*
+*------------------*
+use "$input/r4-oc_childlevel", clear
+gen period=4
+gen cohort="older"
+
+*Date of Interview
+gen day = substr(DINT, 1, 2)
+gen month = substr(DINT, 4, 2)
+gen year = substr(DINT, 9, 2)
+
+*Child ID
+ren CHILDCODE personid
+gen childid = "PE0" + string(personid, "%05.0f") if personid<101001
+replace childid = "PE" + string(personid, "%05.0f") if personid>=101001
+
+*Place ID
+ren childid CHILDID
+merge 1:1 CHILDID using "$input/r4-oc_placeid.dta"
+drop if _merge!= 3 //all matched
+drop _merge
+gen locationid = real(PLACEID)
+ren (CHILDID PLACEID) (childid placeid)
+
+*Test variables
+ren personid CHILDCODE
+merge 1:1 CHILDCODE using "$input/r4-oc_cog.dta" //all matched
+drop if _merge!=3
+drop _merge
+ren CHILDCODE personid
+
+ren (maths_raw lang_raw) (math lang) 
+global scores math lang
+global scores_std ""
+
+foreach y of global scores{
+	egen `y'_std = std(`y')
+	global scores_std ${scores_std} `y'_std
+}
+
+keep personid locationid period cohort $scores $scores_std $dates 
+order personid locationid period cohort $scores $scores_std $dates 
+sort personid locationid
+
+save "$temporal/r4-oc_test.dta", replace
+
+
+// -------------------------------------------------------------------------- //
+// ROUND 5 - 2016/17														  //
+// -------------------------------------------------------------------------- //
+
+*---Younger Cohort---*
+*--------------------*
+use "$input/r5-yc_childlevel", clear
+gen period=5
+gen cohort="younger"
+
+*Date of Interview
+gen day = substr(DINT, 1, 2)
+gen month = substr(DINT, 4, 2)
+gen year = substr(DINT, 9, 2)
+
+*Child ID
+ren CHILDCODE personid
+gen childid = "PE0" + string(personid, "%05.0f") if personid<101001
+replace childid = "PE" + string(personid, "%05.0f") if personid>=101001
+
+*Place ID
+ren personid CHILDCODE
+merge 1:1 CHILDCODE using "$input/r5-yc_placeid.dta"
+drop if _merge != 3 //all matched
+drop _merge
+gen locationid = real(substr(PLACEID5, 3, 2) + substr(PLACEID5, 6, 2))
+ren (CHILDCODE PLACEID5) (personid placeid)
+
+*Test variables
+ren personid CHILDCODE
+merge 1:1 CHILDCODE using "$input/r5-yc_cog.dta" //all matched
+drop if _merge!=3
+drop _merge
+ren CHILDCODE personid
+
+ren (maths_raw ppvt_raw reading_raw) (math ppvt reading) 
+global scores math ppvt reading
+global scores_std ""
+
+foreach y of global scores{
+	egen `y'_std = std(`y')
+	global scores_std ${scores_std} `y'_std
+}
+
+keep personid locationid period cohort $scores $scores_std $dates 
+order personid locationid period cohort $scores $scores_std $dates 
+sort personid locationid
+
+save "$temporal/r5-yc_test.dta", replace
+
+
+// -------------------------------------------------------------------------- //
+// APPENDING FILES 															  //
+// -------------------------------------------------------------------------- //
+
+use "$temporal/r2-yc_test.dta", clear
+append using "$temporal/r2-oc_test.dta"
+
+forval i=3/4{
+	append using "$temporal/r`i'-yc_test.dta"
+	append using "$temporal/r`i'-oc_test.dta"	
+}
+
+append using "$temporal/r5-yc_test.dta"
+
+duplicates tag personid, gen(times_person)
+replace times_person = times_person + 1 //1824 children appear in all 4 rounds (r2-5)
+sort personid period locationid
+
+save "$organized/pool_test.dta", replace
+
+
+
+drop if locationid ==. //| locationid==8888
+cap drop times_person
+duplicates tag personid, gen(times_person)
+replace times_person = times_person + 1 //1393 (1166) children appear in all 4 rounds (r2-5) AFTER REMOVING OBS. WITHOUT LOCATIONID
+sort personid period locationid
+
+
+
+
+
+
+
+
+
+
+

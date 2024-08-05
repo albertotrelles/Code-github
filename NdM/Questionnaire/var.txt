@@ -1,0 +1,46 @@
+ROUND1 
+pechildlevel1yrold (nothing, child is 1 year old)
+pechildlevel8yrold ("enrollment": Pos. = 41	Variable = eversch	Variable label = has the child ever attended formal school?
+
+ROUND2 
+pechildlevel12yrold (enrollment 
+pechildquest12yrold (test scores 
+pechildlevel5yrold (enrollment
+
+revisar round2 y round1 a profundidad 
+
+ROUND3 
+pe_oc_childlevel (enrollment & feelings/self-esteem & beaten up) 
+pe_yc_childlevel (enrollment & feelings/self-esteem - mostly related to school)  !No beaten up
+tests are also done here
+
+
+ROUND4
+pe_r4_occh_decisionmaking (empowerment?)
+pe_r4_occh_educationhistoryindexchild (education)
+pe_r4_occh_olderchild (self-esteem, check from Pos=140)
+pe_r4_occh_schoolcosts (educational spending)
+ 
+pe_r4_occog_olderchild (math and language test)
+
+pe_r4_ochh_asset (hh assets)
+
+pe_oc_saq_olderchild (r4) ( traetment with parents & beaten up by (???) )
+
+
+ROUND5
+pe_r5_ycch_educationhistoryindexchild (attendence in last 6 months)
+pe_r5_ycch_youngerchild (enrollment, self-esteem/feelings) 
+pe_r5_ycsaq_youngerchildsaq ( traetment with parents & beaten up by (???) )            (BFAMLYR5 - beaten by family: Pos. = 100	Variable = BFAMLYR5)
+
+pe_r5_yccogtest_youngerchild (math and language test) 
+(same things for older cohort, even cognitive tests)
+pe_r5_occh_schoolcosts (educational spending)
+
+pe_r5_ycsib_ycsibling (enrollment & feelings)
+
+
+
+OBS: 
+* educationhistory ve school attendence, mientras que *_younger/sibling/olderchild ve enrollment. Hacer con ambos y comparar. 
+

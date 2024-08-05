@@ -1,0 +1,116 @@
+*--Set up----*
+*------------*
+sort participant_id_in_session epoch_time_completed
+
+gen page_id=1 if page_name=="InitializeParticipant"
+replace page_id=2 if page_name=="MobileCheck"
+replace page_id=3 if page_name=="MyWaitPage"
+replace page_id=4 if page_name=="Baseline"
+replace page_id=5 if page_name=="Instrucciones"
+replace page_id=6 if page_name=="Preg1"
+replace page_id=7 if page_name=="Preg2"
+replace page_id=8 if page_name=="Preg3"
+replace page_id=9 if page_name=="Preg4"
+replace page_id=10 if page_name=="Preg5"
+replace page_id=11 if page_name=="Preg6"
+replace page_id=12 if page_name=="Preg7"
+replace page_id=13 if page_name=="Preg8"
+replace page_id=14 if page_name=="Preg9"
+replace page_id=15 if page_name=="Preg10"
+replace page_id=16 if page_name=="bono_vs_accion_intro"
+replace page_id=17 if page_name=="bono_vs_accion_1"
+replace page_id=18 if page_name=="bono_vs_accion_2"
+replace page_id=19 if page_name=="bono_vs_accion_3"
+replace page_id=20 if page_name=="bono_vs_accion_4"
+replace page_id=21 if page_name=="bono_vs_accion_5"
+replace page_id=22 if page_name=="bono_vs_accion_6"
+replace page_id=23 if page_name=="CRT"
+
+bys participant_id_in_session: gen pages_completed=_N
+gen row_id=_n
+
+describe
+global N=r(N)
+tab participant_id_in_session
+global num_players = r(r)       
+
+
+*---Time by page------*
+*---------------------*
+
+*epoch_time differences
+gen long diff=.
+forvalues n = 2/$N{ 
+	forvalues i=2/23{       //23 pages total
+		
+		replace diff = epoch_time_completed[`n'] - epoch_time_completed[`n'-1] if row_id==`n' & page_id==`i'
+		
+	}
+}
+
+*Time variables
+forvalues i=1/23{
+	gen t_`i'=.
+}
+forvalues p=1/$num_players{
+	forvalues i=1/23{
+		replace t_`i'= diff if page_id==`i' & participant_id_in_session==`p'  
+	}
+}
+
+
+*Final variables
+bys participant_id_in_session: egen t_initialize=max(t_1)
+bys participant_id_in_session: egen t_mobile=max(t_2)
+bys participant_id_in_session: egen t_waitpage=max(t_3)
+
+bys participant_id_in_session: egen t_baseline=max(t_4)
+bys participant_id_in_session: egen t_instructions=max(t_5)
+
+bys participant_id_in_session: egen t_preg1=max(t_6)
+bys participant_id_in_session: egen t_preg2=max(t_7)
+bys participant_id_in_session: egen t_preg3=max(t_8)
+bys participant_id_in_session: egen t_preg4=max(t_9)
+bys participant_id_in_session: egen t_preg5=max(t_10)
+bys participant_id_in_session: egen t_preg6=max(t_11)
+bys participant_id_in_session: egen t_preg7=max(t_12)
+bys participant_id_in_session: egen t_preg8=max(t_13)
+bys participant_id_in_session: egen t_preg9=max(t_14)
+bys participant_id_in_session: egen t_preg10=max(t_15)
+
+bys participant_id_in_session: egen t_bono_vs_accion_intro=max(t_16)
+bys participant_id_in_session: egen t_bono_vs_accion_1=max(t_17)
+bys participant_id_in_session: egen t_bono_vs_accion_2=max(t_18)
+bys participant_id_in_session: egen t_bono_vs_accion_3=max(t_19)
+bys participant_id_in_session: egen t_bono_vs_accion_4=max(t_20)
+bys participant_id_in_session: egen t_bono_vs_accion_5=max(t_21)
+bys participant_id_in_session: egen t_bono_vs_accion_6=max(t_22)
+bys participant_id_in_session: egen t_crt=max(t_23)
+
+drop t_? t_1? t_2?
+keep session_code participant_id_in_session participant_code t_*
+duplicates drop 
+
+
+*---Time measurements------*
+*--------------------------*
+global pages "initialize mobile waitpage baseline instructions preg1 preg2 preg3 preg4 preg5 preg6 preg7 preg8 preg9 preg10 bono_vs_accion_intro bono_vs_accion_1 bono_vs_accion_2 bono_vs_accion_3 bono_vs_accion_4 bono_vs_accion_5 bono_vs_accion_6 crt"
+
+foreach y of global pages{
+	*cap drop div60 factor 
+	gen div60_`y' = t_`y'/60
+	gen min_`y' = floor(div60_`y')
+	gen factor_`y' = div60_`y' - min_`y'
+	gen sec_`y' = round(factor_`y'*60)
+	
+	gen mmss_`y' = min_`y' + sec_`y'
+}
+
+drop div60* factor_*
+
+/*
+t: original time measurment (in seconds)
+min: time in minutes (truncated)
+sec: seconds after "min" (values in [0,59])
+mmss: minutes:seconds format 
+*/
