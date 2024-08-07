@@ -384,27 +384,6 @@ graph export "$graphs/scores/het_scores_`y'.png", replace width(2000) height(140
 }
 
 
-
-
-
-
-
-graph combine ise3v1_`y' ise3v2_`y' ise2v1_`y', rows(1) cols(3) title("SVA `y'") 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 *--- (3) ISE heterogeneity ---*
 *-----------------------------*
 use "$output/het_value_added_schools", clear
@@ -491,7 +470,6 @@ graph export "$graphs/ise/ise_het_`y'.png", replace width(2400) height(800)
 
 
 
-*cambiar titulos por top/middle/bottom vs. etc. 
 
 
 
@@ -504,9 +482,7 @@ graph export "$graphs/ise/ise_het_`y'.png", replace width(2400) height(800)
 
 
 
-
-
-
+/*
 graph drop test1 test2 test3
 
 *3rd vs. 1st
